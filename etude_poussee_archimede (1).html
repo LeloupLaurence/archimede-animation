@@ -1,0 +1,850 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Étude de la poussée d'Archimède</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;500;700&family=DM+Mono:wght@400;500&display=swap');
+
+    :root{
+      --bg:#0c1018;
+      --panel:#12182a;
+      --border:rgba(255,255,255,.07);
+      --text:#e8edf8;
+      --muted:#8a97ba;
+      --acc:#7eb3ff;
+      --red:#ff4444;
+      --green:#22cc66;
+      --blue:#2288ff;
+      --radius:18px;
+    }
+
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'DM Sans',sans-serif;
+      background:var(--bg);
+      color:var(--text);
+      min-height:100vh;
+    }
+
+    .wrap{
+      max-width:1440px;
+      margin:0 auto;
+      padding:22px 18px;
+    }
+
+    h1{
+      font-size:clamp(1.4rem,2.2vw,2rem);
+      font-weight:700;
+      letter-spacing:-.02em;
+    }
+
+    .layout{
+      display:grid;
+      grid-template-columns:285px 1fr;
+      gap:16px;
+      align-items:start;
+      margin-top:18px;
+    }
+
+    .sidebar{
+      position:sticky;
+      top:14px;
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:16px;
+    }
+
+    .st{
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.1em;
+      color:var(--muted);
+      margin:16px 0 8px;
+      font-weight:500;
+    }
+
+    .st:first-child{margin-top:0;}
+
+    .bg{
+      display:flex;
+      flex-wrap:wrap;
+      gap:6px;
+    }
+
+    button{
+      font-family:inherit;
+      font-size:.85rem;
+      border:1px solid rgba(255,255,255,.1);
+      background:rgba(255,255,255,.04);
+      color:var(--text);
+      padding:7px 11px;
+      border-radius:11px;
+      cursor:pointer;
+      transition:.15s;
+    }
+
+    button:hover{background:rgba(255,255,255,.09);}
+
+    button.on{
+      background:rgba(126,179,255,.18);
+      border-color:rgba(126,179,255,.55);
+      color:#c5dcff;
+    }
+
+    .slb{
+      background:rgba(255,255,255,.03);
+      border:1px solid var(--border);
+      border-radius:13px;
+      padding:11px 13px;
+    }
+
+    .slh{
+      display:flex;
+      justify-content:space-between;
+      align-items:baseline;
+      margin-bottom:7px;
+    }
+
+    .slv{
+      font-size:.88rem;
+      font-weight:700;
+      font-family:'DM Mono',monospace;
+    }
+
+    .sls{
+      font-size:.75rem;
+      color:var(--muted);
+    }
+
+    input[type=range]{
+      width:100%;
+      accent-color:var(--acc);
+      cursor:pointer;
+    }
+
+    .hint{
+      font-size:.75rem;
+      color:var(--muted);
+      margin-top:6px;
+      line-height:1.4;
+    }
+
+    .eq{
+      background:rgba(0,0,0,.3);
+      border:1px solid var(--border);
+      border-radius:11px;
+      padding:10px 14px;
+      text-align:center;
+      font-family:'DM Mono',monospace;
+      font-size:1rem;
+      color:#c8d8ff;
+      margin-top:12px;
+    }
+
+    .main{
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .sw{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:12px;
+    }
+
+    .sb2{
+      background:linear-gradient(160deg,#eaf3fd 0%,#d2e8f7 100%);
+      border-radius:12px;
+      position:relative;
+      overflow:hidden;
+      min-height:700px;
+    }
+
+    .leg{
+      position:absolute;
+      left:12px;
+      bottom:12px;
+      background:rgba(255,255,255,.92);
+      backdrop-filter:blur(8px);
+      border-radius:11px;
+      padding:9px 13px;
+      display:flex;
+      flex-direction:column;
+      gap:7px;
+    }
+
+    .li{
+      display:flex;
+      align-items:center;
+      gap:8px;
+      font-size:.8rem;
+      font-weight:600;
+      color:#243050;
+    }
+
+    .ld{
+      width:22px;
+      height:3px;
+      border-radius:2px;
+    }
+
+    .cards{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:11px;
+    }
+
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:15px;
+      display:flex;
+      flex-direction:column;
+      gap:3px;
+    }
+
+    .cl{
+      font-size:.7rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+      color:var(--muted);
+    }
+
+    .cv{
+      font-size:1.8rem;
+      font-weight:800;
+      font-family:'DM Mono',monospace;
+      line-height:1;
+    }
+
+    .cu{
+      font-size:.78rem;
+      color:var(--muted);
+    }
+
+    .cP .cv{color:var(--red);}
+    .cT .cv{color:var(--green);}
+    .cPi .cv{color:var(--blue);}
+
+    .mb{
+      background:rgba(34,136,255,.08);
+      border:1px solid rgba(34,136,255,.2);
+      border-radius:var(--radius);
+      padding:15px 17px;
+      font-size:.94rem;
+      line-height:1.55;
+      color:#bdd3ff;
+    }
+
+    .rb{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:15px 17px;
+    }
+
+    .rh{
+      display:flex;
+      justify-content:space-between;
+      font-size:.85rem;
+      color:var(--muted);
+      margin-bottom:7px;
+    }
+
+    .track{
+      background:rgba(255,255,255,.06);
+      border-radius:999px;
+      height:9px;
+      overflow:hidden;
+      border:1px solid var(--border);
+    }
+
+    .fill{
+      height:100%;
+      border-radius:999px;
+      background:linear-gradient(90deg,#60b0ff,#40e8c0);
+      transition:width .4s;
+    }
+
+    .qs{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:var(--radius);
+      padding:17px;
+    }
+
+    .qq{
+      line-height:1.55;
+      margin-bottom:11px;
+    }
+
+    .fb{
+      margin-top:11px;
+      padding:11px 13px;
+      border-radius:11px;
+      font-size:.88rem;
+      line-height:1.5;
+      display:none;
+    }
+
+    .fb.ok{
+      background:rgba(34,204,102,.13);
+      border:1px solid rgba(34,204,102,.25);
+      color:#b0f5cc;
+    }
+
+    .fb.no{
+      background:rgba(255,68,68,.12);
+      border:1px solid rgba(255,68,68,.22);
+      color:#ffd0d0;
+    }
+
+    .foot{
+      margin-top:14px;
+      text-align:center;
+      font-size:.78rem;
+      color:var(--muted);
+    }
+
+    @media(max-width:1050px){
+      .layout{grid-template-columns:1fr;}
+      .sidebar{position:static;}
+      .cards{grid-template-columns:repeat(2,1fr);}
+    }
+
+    @media(max-width:580px){
+      .cards{grid-template-columns:1fr;}
+      .sb2{min-height:580px;}
+    }
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>Étude de la poussée d'Archimède</h1>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar">
+      <div class="st">Fluide</div>
+      <div class="bg" id="fBtns"></div>
+
+      <div class="st">Solide</div>
+      <div class="bg" id="oBtns"></div>
+
+      <div class="st">Rayon de la sphère</div>
+      <div class="slb">
+        <div class="slh">
+          <span class="slv" id="rLbl">R = 4,0 cm</span>
+          <span class="sls" id="vLbl">V = 0,268 L</span>
+        </div>
+        <input type="range" id="rSlider" min="2" max="8" step="0.1" value="4"/>
+      </div>
+
+      <div class="st">Fraction immergée</div>
+      <div class="slb">
+        <div class="slh">
+          <span class="slv" id="sLbl">100 %</span>
+          <span class="sls" id="svLbl">Vᵢ = 0,268 L</span>
+        </div>
+        <input type="range" id="sSlider" min="5" max="100" step="1" value="100"/>
+        <div class="hint">La poussée part du centre de masse de la partie immergée.</div>
+      </div>
+
+      <div class="st">Étapes</div>
+      <div class="bg" id="stBtns">
+        <button data-s="1" class="on">① P + T</button>
+        <button data-s="2">② + poussée</button>
+        <button data-s="3">③ Tout</button>
+      </div>
+
+      <div class="eq">T = P − Π</div>
+
+      <div class="st">À retenir</div>
+      <div class="hint">
+        À volume immergé identique, Π dépend uniquement de ρ<sub>fluide</sub>, de V et de g — pas du matériau.
+      </div>
+    </aside>
+
+    <div class="main">
+      <div class="sw">
+        <div class="sb2">
+          <svg id="scene" viewBox="0 0 940 720" width="100%" height="100%">
+            <defs>
+              <marker id="mR" markerWidth="14" markerHeight="6" refX="13" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0.5 L13,3 L0,5.5 Z" fill="#ff4444"/>
+              </marker>
+              <marker id="mG" markerWidth="14" markerHeight="6" refX="13" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0.5 L13,3 L0,5.5 Z" fill="#22cc66"/>
+              </marker>
+              <marker id="mB" markerWidth="14" markerHeight="6" refX="13" refY="3" orient="auto" markerUnits="userSpaceOnUse">
+                <path d="M0,0.5 L13,3 L0,5.5 Z" fill="#2288ff"/>
+              </marker>
+
+              <linearGradient id="fGrad" x1="0" x2="0" y1="0" y2="1">
+                <stop id="fS0" offset="0%" stop-color="#9fd4ff" stop-opacity=".55"/>
+                <stop id="fS1" offset="100%" stop-color="#3a8eef" stop-opacity=".85"/>
+              </linearGradient>
+
+              <linearGradient id="dGBody" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#b0bac4"/>
+                <stop offset="20%" stop-color="#e8ecf0"/>
+                <stop offset="50%" stop-color="#f6f8fa"/>
+                <stop offset="80%" stop-color="#dde2e8"/>
+                <stop offset="100%" stop-color="#9aa4ae"/>
+              </linearGradient>
+
+              <linearGradient id="dGCap" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="#808a94"/>
+                <stop offset="40%" stop-color="#b8c2cc"/>
+                <stop offset="100%" stop-color="#707880"/>
+              </linearGradient>
+
+              <linearGradient id="dGlass" x1="0" x2="1" y1="0" y2="0">
+                <stop offset="0%" stop-color="rgba(140,180,240,0.5)"/>
+                <stop offset="60%" stop-color="rgba(255,255,255,0.05)"/>
+              </linearGradient>
+
+              <clipPath id="sClip">
+                <circle id="sClipC" cx="490" cy="560" r="50"/>
+              </clipPath>
+            </defs>
+
+            <text x="20" y="36" font-size="20" font-weight="700" fill="#1e2e4e" font-family="'DM Sans',sans-serif">
+              Fluide : <tspan id="tFl">Air</tspan>
+            </text>
+            <text x="20" y="57" font-size="13.5" fill="#4a6080" font-family="'DM Sans',sans-serif">
+              ρ fluide = <tspan id="tRF">1,2</tspan> kg·m⁻³  |  <tspan id="tOb">Aluminium</tspan>  ρ solide = <tspan id="tRO">2700</tspan> kg·m⁻³
+            </text>
+
+            <rect x="455" y="0" width="70" height="14" rx="2" fill="#38404e"/>
+            <line x1="458" y1="0" x2="445" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="468" y1="0" x2="455" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="478" y1="0" x2="465" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="488" y1="0" x2="475" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="498" y1="0" x2="485" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="508" y1="0" x2="495" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <line x1="518" y1="0" x2="505" y2="14" stroke="#2a3040" stroke-width="2"/>
+            <rect x="455" y="12" width="70" height="6" fill="#505868"/>
+            <line x1="490" y1="18" x2="490" y2="38" stroke="#3a4050" stroke-width="2.5"/>
+
+            <ellipse cx="490" cy="40" rx="9" ry="12" fill="none" stroke="#606878" stroke-width="3.5"/>
+            <rect x="472" y="50" width="36" height="20" rx="10" fill="url(#dGCap)" stroke="#708090" stroke-width="1.5"/>
+            <rect x="472" y="66" width="36" height="212" rx="2" fill="url(#dGBody)" stroke="#8a9298" stroke-width="1.5"/>
+            <rect x="472" y="66" width="36" height="10" fill="rgba(0,0,0,0.08)"/>
+            <rect x="472" y="268" width="36" height="10" fill="rgba(0,0,0,0.08)"/>
+            <rect x="472" y="276" width="36" height="20" rx="10" fill="url(#dGCap)" stroke="#708090" stroke-width="1.5"/>
+
+            <rect x="481" y="76" width="18" height="192" rx="3" fill="rgba(255,248,244,0.92)" stroke="rgba(130,170,220,0.5)" stroke-width="1"/>
+            <rect x="481" y="76" width="5" height="192" rx="2" fill="url(#dGlass)" opacity="0.8"/>
+            <g id="scaleG"></g>
+            <rect id="needle" x="481" y="168" width="18" height="3" rx="1.5" fill="#dd2020"/>
+            <text id="tScale" x="516" y="173" font-size="13" font-weight="700" fill="#22cc66" font-family="'DM Mono',monospace">0,00 N</text>
+
+            <path d="M490,50 l4,4 l-8,5 l8,5 l-8,5 l8,4" fill="none" stroke="#b82040" stroke-width="2.8" stroke-linecap="round"/>
+            <line x1="490" y1="296" x2="490" y2="316" stroke="#4a5868" stroke-width="4"/>
+            <path d="M490,316 Q490,336 476,336 Q465,336 465,324" fill="none" stroke="#4a5868" stroke-width="4" stroke-linecap="round"/>
+            <circle id="hookDot" cx="490" cy="316" r="3.5" fill="#3a4858"/>
+
+            <line id="hookLine" x1="490" y1="316" x2="490" y2="510" stroke="#3a4050" stroke-width="2"/>
+
+            <rect x="360" y="460" width="260" height="240" rx="5" fill="rgba(180,200,230,0.08)" stroke="#8090a8" stroke-width="2" stroke-dasharray="8 5"/>
+
+            <rect id="fluidRect" x="361" y="700" width="258" height="0" fill="url(#fGrad)"/>
+            <line id="fluidLine" x1="360" y1="700" x2="620" y2="700" stroke="#2060a8" stroke-width="2" opacity="0"/>
+
+            <circle id="sphere" cx="490" cy="560" r="50" fill="#d7b04a" stroke="#be8c1e" stroke-width="3"/>
+            <g clip-path="url(#sClip)">
+              <rect id="immRect" x="440" y="700" width="100" height="0" fill="rgba(255,255,255,0.18)"/>
+            </g>
+            <ellipse id="sRef" cx="474" cy="544" rx="9" ry="5" fill="rgba(255,255,255,0.4)" transform="rotate(-20,474,544)"/>
+            <text id="sLabel" x="490" y="568" text-anchor="middle" font-size="22" font-weight="700" fill="#876920" font-family="'DM Sans',sans-serif">Al</text>
+
+            <text id="flCaption" x="490" y="718" text-anchor="middle" font-size="14" fill="#3860a0" font-family="'DM Sans',sans-serif"></text>
+
+            <line id="vP" x1="490" y1="560" x2="490" y2="680" stroke="#ff4444" stroke-width="2.5" marker-end="url(#mR)"/>
+            <text id="lP" x="500" y="678" font-size="17" font-weight="700" fill="#ff4444" font-family="'DM Mono',monospace">P = 0,00 N</text>
+
+            <line id="vT" x1="490" y1="510" x2="490" y2="374" stroke="#22cc66" stroke-width="2.5" marker-end="url(#mG)"/>
+            <text id="lT" x="502" y="382" font-size="17" font-weight="700" fill="#22cc66" font-family="'DM Mono',monospace">T = 0,00 N</text>
+
+            <line id="vB" x1="490" y1="580" x2="490" y2="460" stroke="#2288ff" stroke-width="2.5" marker-end="url(#mB)" opacity="0"/>
+            <text id="lB" x="480" y="454" font-size="17" font-weight="700" fill="#2288ff" font-family="'DM Mono',monospace" text-anchor="end" opacity="0">Π = 0,00 N</text>
+          </svg>
+
+          <div class="leg">
+            <div class="li"><span class="ld" style="background:var(--red)"></span> P — centre de masse de la sphère (↓)</div>
+            <div class="li"><span class="ld" style="background:var(--green)"></span> T — contact fil–sphère (↑)</div>
+            <div class="li"><span class="ld" style="background:var(--blue)"></span> Π — centre de masse de la partie immergée (↑)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card cP">
+          <div class="cl">Poids P</div>
+          <div class="cv" id="cP">0,00</div>
+          <div class="cu">N</div>
+        </div>
+        <div class="card cT">
+          <div class="cl">Tension T</div>
+          <div class="cv" id="cT">0,00</div>
+          <div class="cu">N</div>
+        </div>
+        <div class="card cPi">
+          <div class="cl">Poussée Π</div>
+          <div class="cv" id="cPi">0,00</div>
+          <div class="cu">N</div>
+        </div>
+        <div class="card">
+          <div class="cl">Rayon</div>
+          <div class="cv" id="cR">4,0</div>
+          <div class="cu">cm</div>
+        </div>
+      </div>
+
+      <div class="mb" id="msg"></div>
+
+      <div class="rb">
+        <div class="st" style="margin-top:0">Densité du fluide</div>
+        <div class="rh"><span id="rBN">Air</span><span id="rBV">1,2 kg·m⁻³</span></div>
+        <div class="track"><div class="fill" id="rFill"></div></div>
+        <div class="hint" style="margin-top:8px;">Π ∝ ρ<sub>fluide</sub> — le matériau n'a aucune influence sur la poussée.</div>
+      </div>
+
+      <div class="qs">
+        <div class="st" style="margin-top:0">Question flash</div>
+        <div class="qq">À rayon et fraction immergée identiques, si l'on remplace l'aluminium par du plomb, la poussée d'Archimède :</div>
+        <div class="bg">
+          <button class="qb" data-a="plus">augmente</button>
+          <button class="qb" data-a="moins">diminue</button>
+          <button class="qb" data-a="idem">reste identique</button>
+        </div>
+        <div class="fb" id="fb"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot">Animation pédagogique — poussée d'Archimède</div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const NS = 'http://www.w3.org/2000/svg';
+  const G = 9.81;
+
+  const CX = 490;
+  const SPH_CY = 560;
+  const HOOK_Y = 316;
+  const BAC_BOT = 700;
+
+  const FLUIDS = {
+    air:       { label:'Air',       rho:1.2,   c0:'#ddeeff', c1:'#b0ccee' },
+    ethanol:   { label:'Éthanol',   rho:789,   c0:'#cce8ff', c1:'#66c0f5' },
+    water:     { label:'Eau',       rho:1000,  c0:'#99ccff', c1:'#2270ee' },
+    saltwater: { label:'Eau salée', rho:1025,  c0:'#99d4ff', c1:'#1e68ee' },
+  };
+
+  const OBJECTS = {
+    aluminium: { label:'Aluminium', sh:'Al', rho:2700,  fi:'#d7b04a', st:'#be8c1e', txt:'#876920' },
+    iron:      { label:'Fer',       sh:'Fe', rho:7800,  fi:'#7e8a9e', st:'#5f6776', txt:'#e9eef5' },
+    lead:      { label:'Plomb',     sh:'Pb', rho:11300, fi:'#66708a', st:'#4f586d', txt:'#f2f5fa' },
+  };
+
+  let S = { fluid:'air', object:'aluminium', rCm:4, sub:100, step:1 };
+
+  const $ = id => document.getElementById(id);
+
+  const fmt = (v,d=2) =>
+    new Intl.NumberFormat('fr-FR',{
+      minimumFractionDigits:d,
+      maximumFractionDigits:d
+    }).format(v);
+
+  const sa = (el, attrs) => {
+    Object.entries(attrs).forEach(([k,v]) => el.setAttribute(k, String(v)));
+  };
+
+  const svgEl = (tag, attrs) => {
+    const e = document.createElementNS(NS, tag);
+    sa(e, attrs);
+    return e;
+  };
+
+  function mkBtns(cid, data, key) {
+    const c = $(cid);
+    Object.entries(data).forEach(([k, v]) => {
+      const b = document.createElement('button');
+      b.textContent = v.label;
+      b.dataset.v = k;
+      if (k === S[key]) b.classList.add('on');
+      b.addEventListener('click', () => {
+        c.querySelectorAll('button').forEach(x => x.classList.remove('on'));
+        b.classList.add('on');
+        S[key] = k;
+        render();
+      });
+      c.appendChild(b);
+    });
+  }
+
+  mkBtns('fBtns', FLUIDS, 'fluid');
+  mkBtns('oBtns', OBJECTS, 'object');
+
+  $('rSlider').addEventListener('input', e => {
+    S.rCm = +e.target.value;
+    render();
+  });
+
+  $('sSlider').addEventListener('input', e => {
+    S.sub = +e.target.value;
+    render();
+  });
+
+  const stBtns = Array.from($('stBtns').querySelectorAll('button'));
+  stBtns.forEach(b => b.addEventListener('click', () => {
+    stBtns.forEach(x => x.classList.remove('on'));
+    b.classList.add('on');
+    S.step = +b.dataset.s;
+    render();
+  }));
+
+  document.querySelectorAll('.qb').forEach(b => b.addEventListener('click', () => {
+    const ok = b.dataset.a === 'idem';
+    const fb = $('fb');
+    fb.style.display = 'block';
+    fb.className = 'fb ' + (ok ? 'ok' : 'no');
+    fb.innerHTML = ok
+      ? '<strong>Exact.</strong> Π = ρ<sub>fluide</sub>·V<sub>imm</sub>·g — le matériau n’intervient pas.'
+      : '<strong>Pas tout à fait.</strong> Seul le poids varie avec le matériau ; Π dépend du fluide et du volume immergé.';
+  }));
+
+  function buildScale() {
+    const g = $('scaleG');
+    g.innerHTML = '';
+    const yTop = 80, yBot = 266, N = 20;
+    const h = yBot - yTop;
+
+    for (let i = 0; i <= N; i++) {
+      const y = yBot - i * (h / N);
+      const isMaj = i % 5 === 0;
+
+      const tick = svgEl('line', {
+        x1: 481,
+        x2: 481 + (isMaj ? 14 : 8),
+        y1: y,
+        y2: y,
+        stroke: '#8090b0',
+        'stroke-width': isMaj ? 1.5 : 1
+      });
+      g.appendChild(tick);
+
+      if (isMaj) {
+        const txt = svgEl('text', {
+          x: 479,
+          y: y + 4.5,
+          'font-size': 9,
+          fill: '#6070a0',
+          'text-anchor': 'end',
+          'font-family': "'DM Mono', monospace"
+        });
+        txt.textContent = String(i);
+        g.appendChild(txt);
+      }
+    }
+  }
+
+  buildScale();
+
+  function setGrad(fk) {
+    const f = FLUIDS[fk];
+    $('fS0').setAttribute('stop-color', f.c0);
+    $('fS1').setAttribute('stop-color', f.c1);
+  }
+
+  function render() {
+    const fl = FLUIDS[S.fluid];
+    const ob = OBJECTS[S.object];
+
+    const R = S.rCm / 100;
+    const rPx = S.rCm * 10.5;
+    const pct = S.sub / 100;
+
+    const Vtot = (4/3) * Math.PI * R * R * R;
+    const Vimm = Vtot * pct;
+    const mass = ob.rho * Vtot;
+
+    const P = mass * G;
+    const Pi = fl.rho * Vimm * G;
+    const T = Math.max(P - Pi, 0);
+
+    const sTop = SPH_CY - rPx;
+    const sBot = SPH_CY + rPx;
+
+    const fsY = sTop + 2 * rPx * (1 - pct);
+    const fH = Math.max(BAC_BOT - fsY, 0);
+
+    const centY = pct > 0 ? (fsY + sBot) / 2 : sBot;
+    const yContactSphere = sTop;
+
+    setGrad(S.fluid);
+
+    $('tFl').textContent = fl.label;
+    $('tRF').textContent = fmt(fl.rho, fl.rho < 10 ? 1 : 0);
+    $('tOb').textContent = ob.label;
+    $('tRO').textContent = fmt(ob.rho, 0);
+
+    $('rLbl').textContent = `R = ${fmt(S.rCm,1)} cm`;
+    $('vLbl').textContent = `V = ${fmt(Vtot * 1000, 3)} L`;
+    $('sLbl').textContent = `${fmt(S.sub,0)} %`;
+    $('svLbl').textContent = `Vᵢ = ${fmt(Vimm * 1000, 3)} L`;
+
+    $('cP').textContent = fmt(P,2);
+    $('cT').textContent = fmt(T,2);
+    $('cPi').textContent = fmt(Pi,2);
+    $('cR').textContent = fmt(S.rCm,1);
+
+    $('rBN').textContent = fl.label;
+    $('rBV').textContent = `${fmt(fl.rho, fl.rho < 10 ? 1 : 0)} kg·m⁻³`;
+    $('rFill').style.width = `${Math.min(fl.rho / 1025 * 100, 100)}%`;
+
+    $('msg').innerHTML =
+      `Pour cette configuration, le poids vaut <strong>${fmt(P,2)} N</strong>, ` +
+      `la poussée d’Archimède vaut <strong>${fmt(Pi,2)} N</strong> ` +
+      `et la tension indiquée par le dynamomètre vaut <strong>${fmt(T,2)} N</strong>.`;
+
+    sa($('fluidRect'), {
+      x: 361,
+      y: fsY,
+      width: 258,
+      height: fH
+    });
+
+    sa($('fluidLine'), {
+      x1: 360,
+      y1: fsY,
+      x2: 620,
+      y2: fsY,
+      opacity: pct > 0 ? 1 : 0
+    });
+
+    sa($('sphere'), {
+      cx: CX,
+      cy: SPH_CY,
+      r: rPx,
+      fill: ob.fi,
+      stroke: ob.st
+    });
+
+    sa($('sClipC'), {
+      cx: CX,
+      cy: SPH_CY,
+      r: rPx
+    });
+
+    sa($('immRect'), {
+      x: CX - rPx,
+      y: fsY,
+      width: 2 * rPx,
+      height: Math.max(sBot - fsY, 0)
+    });
+
+    sa($('sRef'), {
+      cx: CX - 0.32 * rPx,
+      cy: SPH_CY - 0.32 * rPx,
+      rx: Math.max(5, 0.18 * rPx),
+      ry: Math.max(3, 0.10 * rPx),
+      transform: `rotate(-20,${CX - 0.32 * rPx},${SPH_CY - 0.32 * rPx})`
+    });
+
+    $('sLabel').textContent = ob.sh;
+    $('sLabel').setAttribute('x', CX);
+    $('sLabel').setAttribute('y', SPH_CY + 8);
+    $('sLabel').setAttribute('fill', ob.txt);
+
+    $('flCaption').textContent = fl.label;
+
+    sa($('hookLine'), {
+      x1: CX,
+      y1: HOOK_Y,
+      x2: CX,
+      y2: yContactSphere
+    });
+
+    const maxForce = Math.max(P, T, Pi, 1);
+    const scaleLen = 140 / maxForce;
+
+    const pLen = P * scaleLen;
+    const tLen = T * scaleLen;
+    const bLen = Pi * scaleLen;
+
+    sa($('vP'), {
+      x1: CX,
+      y1: SPH_CY,
+      x2: CX,
+      y2: SPH_CY + pLen
+    });
+    sa($('lP'), {
+      x: CX + 10,
+      y: SPH_CY + pLen - 2
+    });
+    $('lP').textContent = `P = ${fmt(P,2)} N`;
+
+    const tx = CX;
+    sa($('vT'), {
+      x1: tx,
+      y1: yContactSphere,
+      x2: tx,
+      y2: yContactSphere - tLen
+    });
+    sa($('lT'), {
+      x: tx + 12,
+      y: yContactSphere - tLen + 6
+    });
+    $('lT').textContent = `T = ${fmt(T,2)} N`;
+
+    const bx = CX;
+    sa($('vB'), {
+      x1: bx,
+      y1: centY,
+      x2: bx,
+      y2: centY - bLen
+    });
+    sa($('lB'), {
+      x: bx - 10,
+      y: centY - bLen - 5,
+      'text-anchor': 'end'
+    });
+    $('lB').textContent = `Π = ${fmt(Pi,2)} N`;
+
+    const showP = true;
+    const showT = S.step >= 1;
+    const showB = S.step >= 2 && pct > 0;
+
+    $('vP').style.opacity = showP ? '1' : '0';
+    $('lP').style.opacity = showP ? '1' : '0';
+
+    $('vT').style.opacity = showT ? '1' : '0';
+    $('lT').style.opacity = showT ? '1' : '0';
+
+    $('vB').style.opacity = showB ? '1' : '0';
+    $('lB').style.opacity = showB ? '1' : '0';
+
+    const yTop = 80, yBot = 266;
+    const needleY = yBot - Math.min(T, 20) / 20 * (yBot - yTop);
+    $('needle').setAttribute('y', needleY - 1.5);
+    $('tScale').setAttribute('y', needleY + 5);
+    $('tScale').textContent = `${fmt(T,2)} N`;
+  }
+
+  render();
+});
+</script>
+</body>
+</html>
